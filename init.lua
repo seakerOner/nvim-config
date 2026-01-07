@@ -1,3 +1,5 @@
+local augroup = vim.api.nvim_create_augroup('user_config', { clear = true })
+
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -407,20 +409,6 @@ require('lazy').setup {
 },
 }
 
-local lspconfig = require('lspconfig')
-
-local on_attach = function(_, bufnr)
-  local map = function(mode, lhs, rhs)
-    vim.keymap.set(mode, lhs, rhs, { buffer = bufnr })
-  end
-
-  map('n', 'gd', vim.lsp.buf.definition)
-  map('n', 'gr', vim.lsp.buf.references)
-  map('n', 'K', vim.lsp.buf.hover)
-  map('n', '<leader>rn', vim.lsp.buf.rename)
-  map('n', '<leader>ca', vim.lsp.buf.code_action)
-end
-
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 local on_attach = function(_, bufnr)
@@ -438,22 +426,39 @@ end
 vim.lsp.config('clangd', {
   capabilities = capabilities,
   on_attach = on_attach,
+  root_dir = function(fname)
+      return vim.fs.root(fname, {
+          'compile_commands.json',
+          'compile_flags.txt',
+          'makefile',
+          'MakeFile',
+          '.git'
+      })
+  end
 })
 
 vim.lsp.config('rust_analyzer', {
   capabilities = capabilities,
   on_attach = on_attach,
+  root_dir = function(fname)
+      return vim.fs.root(fname, { 'Cargo.toml', '.git'})
+  end
 })
 
 vim.lsp.config('lua_ls', {
   capabilities = capabilities,
   on_attach = on_attach,
+  root_dir = function(fname)
+      return vim.fs.root(fname, { '.git', '.luarc.json'}) or vim.loop.cwd()
+  end
   settings = {
     Lua = {
       diagnostics = { globals = { 'vim' } },
     },
   },
 })
+
+vim.lsp.enable({ 'clangd', 'rust_analyzer', 'lua_ls'})
 
 local cmp = require('cmp')
 
@@ -468,9 +473,11 @@ cmp.setup {
     { name = 'path' },
   },
 
-  -- Format on save (LSP)
-  vim.api.nvim_create_autocmd('BufWritePre', {
-  callback = function()
-    vim.lsp.buf.format({ async = false })
-  end,
-})}
+)}
+-- Format on save (LSP)
+vim.api.nvim_create_autocmd('BufWritePre', {
+    callback = function()
+        vim.lsp.buf.format({ async = false })
+    end,
+})
+
