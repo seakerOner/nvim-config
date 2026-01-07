@@ -92,7 +92,8 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', '<leader>qq', '<cmd>copen<CR>', { desc = 'Open [Q]uickfix list' })
 vim.keymap.set('n', '<leader>qc', '<cmd>cclose<CR>', { desc = '[C]lose Quickfix list' })
 vim.keymap.set('n', '<leader>qt', '<cmd>TodoQuickFix<CR>', { desc = 'Open TODO Quickfix list' })
-vim.keymap.set('n', '<leader>qd', vim.diagnostic.setloclist, { desc = '[D]iagnostic Quickfix list' })
+vim.keymap.set('n', '<leader>qd', vim.diagnostic.setloclist, { desc = '[D]iagnostic Location list' })
+vim.keymap.set('n', '<leader>qD', vim.diagnostic.setqflist, { desc = 'Diagnostics → Global Quickfix' })
 
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
@@ -396,9 +397,9 @@ require('lazy').setup {
     indent = { enable = true },
   },
 },
-{
-  'neovim/nvim-lspconfig',
-},
+  {
+    'neovim/nvim-lspconfig',
+  },
 {
   'hrsh7th/nvim-cmp',
   dependencies = {
@@ -426,31 +427,30 @@ end
 vim.lsp.config('clangd', {
   capabilities = capabilities,
   on_attach = on_attach,
-  root_dir = function(fname)
-      return vim.fs.root(fname, {
-          'compile_commands.json',
-          'compile_flags.txt',
-          'makefile',
-          'MakeFile',
-          '.git'
-      })
-  end
+  -- root_dir = function(fname)
+  --     return vim.fs.root(fname, {
+  --         'compile_commands.json',
+  --         'compile_flags.txt',
+  --         'Makefile',
+  --         '.git'
+  --     })
+  -- end
 })
 
 vim.lsp.config('rust_analyzer', {
   capabilities = capabilities,
   on_attach = on_attach,
-  root_dir = function(fname)
-      return vim.fs.root(fname, { 'Cargo.toml', '.git'})
-  end
+  -- root_dir = function(fname)
+  --     return vim.fs.root(fname, { 'Cargo.toml', '.git'})
+  -- end
 })
 
 vim.lsp.config('lua_ls', {
   capabilities = capabilities,
   on_attach = on_attach,
-  root_dir = function(fname)
-      return vim.fs.root(fname, { '.git', '.luarc.json'}) or vim.loop.cwd()
-  end
+  -- root_dir = function(fname)
+  --     return vim.fs.root(fname, { '.git', '.luarc.json'}) or vim.loop.cwd()
+  -- end,
   settings = {
     Lua = {
       diagnostics = { globals = { 'vim' } },
@@ -458,7 +458,7 @@ vim.lsp.config('lua_ls', {
   },
 })
 
-vim.lsp.enable({ 'clangd', 'rust_analyzer', 'lua_ls'})
+vim.lsp.enable({'clangd', 'rust_analyzer', 'lua_ls'})
 
 local cmp = require('cmp')
 
@@ -472,8 +472,7 @@ cmp.setup {
     { name = 'buffer' },
     { name = 'path' },
   },
-
-)}
+}
 -- Format on save (LSP)
 vim.api.nvim_create_autocmd('BufWritePre', {
     callback = function()
