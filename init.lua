@@ -3,8 +3,8 @@ local augroup = vim.api.nvim_create_augroup('user_config', { clear = true })
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
-vim.cmd(":colorscheme habamax")
---vim.cmd(":colorscheme unokai")
+vim.cmd(":colorscheme retrobox")
+--vim.cmd(":colorscheme habamax")
 vim.g.have_nerd_font = false
 
 vim.o.number = true
